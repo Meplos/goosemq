@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <title>GooseMQ – Debug</title>
+        <style>
+            body {
+                font-family: system-ui, sans-serif;
+                background: #0f172a;
+                color: #e5e7eb;
+                padding: 24px;
+            }
+
+            h1 {
+                margin-bottom: 8px;
+            }
+
+            .uptime {
+                margin-bottom: 16px;
+                color: #94a3b8;
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+                background: #020617;
+            }
+
+            th,
+            td {
+                padding: 8px 12px;
+                border-bottom: 1px solid #1e293b;
+                text-align: left;
+            }
+
+            th {
+                color: #cbd5f5;
+                font-weight: 600;
+            }
+
+            tr.idle {
+                opacity: 0.5;
+            }
+
+            .badge {
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .green {
+                background: #16a34a;
+            }
+            .orange {
+                background: #ea580c;
+            }
+            .red {
+                background: #dc2626;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>🪿 GooseMQ – Debug</h1>
+        <div class="uptime" id="uptime">Uptime: --</div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Topic</th>
+                    <th>Pending</th>
+                    <th>Inflight</th>
+                    <th>Bytes</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="topics"></tbody>
+        </table>
+
+        <script>
+            function formatDuration(seconds) {
+                const d = Math.floor(seconds / 86400);
+                const h = Math.floor((seconds % 86400) / 3600);
+                const m = Math.floor((seconds % 3600) / 60);
+                const s = seconds % 60;
+
+                if (d > 0) return `${d}d ${h}h`;
+                if (h > 0) return `${h}h ${m}m`;
+                return `${m}m ${s}s`;
+            }
+
+            async function refresh() {
+                try {
+                    const res = await fetch("/monitor/state");
+                    const data = await res.json();
+
+                    const startedAt = new Date(data.start_at);
+                    const now = new Date();
+                    const seconds = Math.floor((now - startedAt) / 1000);
+
+                    const min = Math.floor(seconds / 60);
+                    const sec = seconds % 60;
+
+                    document.getElementById("uptime").textContent =
+                        `Uptime: ${min}m ${sec}s`;
+
+                    // Topics
+                    const tbody = document.getElementById("topics");
+                    tbody.innerHTML = "";
+
+                    data.topics.forEach((t) => {
+                        const tr = document.createElement("tr");
+                        if (t.is_idle) tr.classList.add("idle");
+
+                        tr.innerHTML = `
+          <td>${t.name}</td>
+          <td>${t.pending}</td>
+          <td>${t.inflight}</td>
+          <td>${t.bytes}</td>
+          <td>
+            ${
+                t.is_idle
+                    ? '<span class="badge green">IDLE</span>'
+                    : '<span class="badge orange">ACTIVE</span>'
+            }
+          </td>
+        `;
+
+                        tbody.appendChild(tr);
+                    });
+                } catch (e) {
+                    console.error("Failed to fetch state", e);
+                }
+            }
+
+            refresh();
+            setInterval(refresh, 1000);
+        </script>
+    </body>
+</html>
