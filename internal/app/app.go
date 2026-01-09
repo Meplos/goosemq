@@ -8,8 +8,8 @@ import (
 	"github.com/Meplos/goosemq/internal/app/dispatcher"
 	"github.com/Meplos/goosemq/internal/app/network"
 	"github.com/Meplos/goosemq/internal/app/network/tcp"
-	"github.com/Meplos/goosemq/internal/config"
 	"github.com/Meplos/goosemq/internal/http"
+	"github.com/Meplos/goosemq/pkg/config"
 )
 
 type App struct {

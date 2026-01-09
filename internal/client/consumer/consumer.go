@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/Meplos/goosemq/internal/client"
-	"github.com/Meplos/goosemq/internal/config"
 	"github.com/Meplos/goosemq/internal/data"
 	"github.com/Meplos/goosemq/internal/protocol"
+	"github.com/Meplos/goosemq/pkg/config"
 	"github.com/google/uuid"
 )
 
@@ -21,13 +21,6 @@ const (
 	STOPPED ConsumerState = "STOPPED"
 	CLOSED  ConsumerState = "CLOSED"
 )
-
-type Consumer interface {
-	Start()
-	Subscribe(topic string, handler HandlerFunc)
-	Stop()
-	Close()
-}
 
 type ConsumerMessage struct {
 	Value data.TopicMessage
@@ -65,7 +58,7 @@ type Options struct {
 	NbAckWorker     int
 }
 
-func New(info config.ConnexionInfo) Consumer {
+func New(info config.ConnexionInfo) *ConsumerRuntime {
 	opts := Options{
 		Timeout:         5 * time.Second,
 		MaxMessage:      5,
@@ -78,7 +71,7 @@ func New(info config.ConnexionInfo) Consumer {
 	return NewWithOptions(info, opts)
 }
 
-func NewWithOptions(info config.ConnexionInfo, opts Options) Consumer {
+func NewWithOptions(info config.ConnexionInfo, opts Options) *ConsumerRuntime {
 	return &ConsumerRuntime{
 		state:           STOPPED,
 		ConnManager:     client.New(info),

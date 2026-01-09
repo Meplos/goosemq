@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Meplos/goosemq/internal/config"
 	"github.com/Meplos/goosemq/internal/protocol"
+	"github.com/Meplos/goosemq/pkg/config"
 )
 
 type Client struct {
