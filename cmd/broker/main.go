@@ -7,7 +7,7 @@ import (
 	"syscall"
 
 	"github.com/Meplos/goosemq/internal/app"
-	"github.com/Meplos/goosemq/internal/config"
+	"github.com/Meplos/goosemq/pkg/config"
 )
 
 func main() {

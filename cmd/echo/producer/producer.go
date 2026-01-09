@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/Meplos/goosemq/internal/client/producer"
-	"github.com/Meplos/goosemq/internal/config"
 	"github.com/Meplos/goosemq/internal/data"
+	"github.com/Meplos/goosemq/pkg/config"
 )
 
 func main() {

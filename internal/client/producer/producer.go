@@ -7,17 +7,11 @@ import (
 	"time"
 
 	"github.com/Meplos/goosemq/internal/client"
-	"github.com/Meplos/goosemq/internal/config"
 	"github.com/Meplos/goosemq/internal/data"
 	"github.com/Meplos/goosemq/internal/goosemq"
 	"github.com/Meplos/goosemq/internal/protocol"
+	"github.com/Meplos/goosemq/pkg/config"
 )
-
-type Producer interface {
-	Start()
-	Stop()
-	Publish(topic string, body data.Content) error
-}
 
 type ProducerState string
 
@@ -42,7 +36,7 @@ type PublishRequest struct {
 	Retrying bool
 }
 
-func New(info config.ConnexionInfo) Producer {
+func New(info config.ConnexionInfo) *ProducerRuntime {
 
 	p := &ProducerRuntime{
 		state:       STOPPED,
