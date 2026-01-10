@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM golang:1.25-alpine AS builder
+FROM docker.io/library/golang:1.25-alpine AS builder
 
 # Install git (nécessaire si tu utilises des modules depuis github)
 RUN apk add --no-cache git
@@ -18,7 +18,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o broker ./cmd/broker/main.go
 
 # Stage 2: Minimal image
-FROM alpine:latest
+FROM docker.io/library/alpine:latest
 
 # Install ca-certificates (if your app makes https requests)
 RUN apk add --no-cache ca-certificates
@@ -27,6 +27,7 @@ WORKDIR /app
 
 # Copy the binary from the builder
 COPY --from=builder /app/broker .
+COPY ./static/ ./static
 
 # Expose the port your broker listens on (example 7456)
 EXPOSE 7456
