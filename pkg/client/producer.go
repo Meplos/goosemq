@@ -2,8 +2,8 @@ package client
 
 import (
 	"github.com/Meplos/goosemq/internal/client/producer"
-	"github.com/Meplos/goosemq/internal/data"
 	"github.com/Meplos/goosemq/pkg/config"
+	"github.com/Meplos/goosemq/pkg/data"
 )
 
 type Producer interface {

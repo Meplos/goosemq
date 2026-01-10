@@ -7,17 +7,18 @@ import (
 	"time"
 
 	"github.com/Meplos/goosemq/internal/config"
-	"github.com/Meplos/goosemq/internal/data"
+	internal "github.com/Meplos/goosemq/internal/data"
+	"github.com/Meplos/goosemq/pkg/data"
 	"github.com/google/uuid"
 )
 
 type Topic interface {
 	Enqueue(body data.Content) error
-	Pull(max int) []data.TopicMessage
+	Pull(max int) []internal.TopicMessage
 	Ack(msgID uuid.UUID)
 	RetryAndCleanUnacked()
 	Notify() <-chan struct{}
-	Snapshot() data.TopicState
+	Snapshot() internal.TopicState
 	IsIdle() bool
 	Name() string
 	LastActivity() time.Time
@@ -25,8 +26,8 @@ type Topic interface {
 
 type InMemoryTopic struct {
 	name     string
-	Pending  []data.TopicMessage
-	Inflight map[uuid.UUID]data.TopicMessage
+	Pending  []internal.TopicMessage
+	Inflight map[uuid.UUID]internal.TopicMessage
 	mu       sync.RWMutex
 
 	totalBytes    int64
@@ -52,8 +53,8 @@ func (t *InMemoryTopic) Name() string {
 func New(name string) Topic {
 	return &InMemoryTopic{
 		name:     name,
-		Pending:  make([]data.TopicMessage, 0),
-		Inflight: make(map[uuid.UUID]data.TopicMessage, 0),
+		Pending:  make([]internal.TopicMessage, 0),
+		Inflight: make(map[uuid.UUID]internal.TopicMessage, 0),
 		mu:       sync.RWMutex{},
 		TopicConfig: config.TopicConfig{
 			MaxMessage: 10000,
@@ -79,7 +80,7 @@ func (t *InMemoryTopic) Enqueue(body data.Content) error {
 		return ErrTopicOverloaded
 	}
 
-	t.Pending = append(t.Pending, data.TopicMessage{
+	t.Pending = append(t.Pending, internal.TopicMessage{
 		ID:            uuid.New(),
 		CreatedAt:     time.Now(),
 		Body:          body,
@@ -94,9 +95,9 @@ func (t *InMemoryTopic) Enqueue(body data.Content) error {
 	return nil
 }
 
-func (t *InMemoryTopic) Pull(max int) []data.TopicMessage {
+func (t *InMemoryTopic) Pull(max int) []internal.TopicMessage {
 	if max <= 0 {
-		return []data.TopicMessage{}
+		return []internal.TopicMessage{}
 
 	}
 	t.mu.Lock()
@@ -106,7 +107,7 @@ func (t *InMemoryTopic) Pull(max int) []data.TopicMessage {
 		max = len(t.Pending)
 	}
 
-	pulled := make([]data.TopicMessage, max)
+	pulled := make([]internal.TopicMessage, max)
 	copy(pulled, t.Pending[0:max])
 	t.Pending = t.Pending[max:len(t.Pending)]
 
@@ -173,10 +174,10 @@ func (t *InMemoryTopic) IsIdle() bool {
 	defer t.mu.RUnlock()
 	return len(t.Pending) <= 0 && len(t.Inflight) <= 0
 }
-func (t *InMemoryTopic) Snapshot() data.TopicState {
+func (t *InMemoryTopic) Snapshot() internal.TopicState {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
-	return data.TopicState{
+	return internal.TopicState{
 		Name:         t.name,
 		Inflight:     len(t.Inflight),
 		Pending:      len(t.Pending),

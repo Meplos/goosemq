@@ -3,6 +3,7 @@ package data
 import (
 	"time"
 
+	"github.com/Meplos/goosemq/pkg/data"
 	"github.com/google/uuid"
 )
 
@@ -21,11 +22,9 @@ type BrockerState struct {
 	StartAt time.Time    `json:"start_at"`
 }
 
-type Content map[string]interface{}
-
 type TopicMessage struct {
 	ID            uuid.UUID
-	Body          Content
+	Body          data.Content
 	ContentLength int64
 	CreatedAt     time.Time
 	InflightAt    time.Time
@@ -33,6 +32,6 @@ type TopicMessage struct {
 	Topic         string
 }
 
-func (m *TopicMessage) Content() Content {
+func (m *TopicMessage) Content() data.Content {
 	return m.Body
 }

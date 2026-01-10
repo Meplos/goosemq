@@ -3,12 +3,13 @@ package data
 import (
 	"time"
 
+	"github.com/Meplos/goosemq/pkg/data"
 	"github.com/google/uuid"
 )
 
 type PushRequest struct {
-	Topic string  `json:"topic"`
-	Body  Content `json:"body"`
+	Topic string       `json:"topic"`
+	Body  data.Content `json:"body"`
 }
 
 type AckRequest struct {

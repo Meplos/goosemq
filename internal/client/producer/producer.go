@@ -7,10 +7,11 @@ import (
 	"time"
 
 	"github.com/Meplos/goosemq/internal/client"
-	"github.com/Meplos/goosemq/internal/data"
+	internal "github.com/Meplos/goosemq/internal/data"
 	"github.com/Meplos/goosemq/internal/goosemq"
 	"github.com/Meplos/goosemq/internal/protocol"
 	"github.com/Meplos/goosemq/pkg/config"
+	"github.com/Meplos/goosemq/pkg/data"
 )
 
 type ProducerState string
@@ -114,7 +115,7 @@ func (p *ProducerRuntime) handleAck(frame protocol.Frame) {
 		return
 	}
 
-	var payload data.AckResponse
+	var payload internal.AckResponse
 	err := json.Unmarshal(frame.Payload, &payload)
 	if err != nil {
 		log.Printf("[HandleAck] cant unmarshall payload. error: %s", err)
@@ -122,11 +123,11 @@ func (p *ProducerRuntime) handleAck(frame protocol.Frame) {
 	}
 
 	switch payload.Status {
-	case data.AckOk:
+	case internal.AckOk:
 		p.mu.Lock()
 		delete(p.Requests, frame.ID)
 		p.mu.Unlock()
-	case data.AckKo:
+	case internal.AckKo:
 		p.mu.Lock()
 		pr, ok := p.Requests[frame.ID]
 		if !ok {
@@ -173,7 +174,7 @@ func (p *ProducerRuntime) retry(reqId protocol.ReqId) {
 }
 
 func (p *ProducerRuntime) send(req PublishRequest) error {
-	content := data.PushRequest{
+	content := internal.PushRequest{
 		Topic: req.Topic,
 		Body:  req.Body,
 	}

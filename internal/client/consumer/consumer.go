@@ -7,9 +7,10 @@ import (
 	"time"
 
 	"github.com/Meplos/goosemq/internal/client"
-	"github.com/Meplos/goosemq/internal/data"
+	internal "github.com/Meplos/goosemq/internal/data"
 	"github.com/Meplos/goosemq/internal/protocol"
 	"github.com/Meplos/goosemq/pkg/config"
+	"github.com/Meplos/goosemq/pkg/data"
 	"github.com/google/uuid"
 )
 
@@ -23,7 +24,7 @@ const (
 )
 
 type ConsumerMessage struct {
-	Value data.TopicMessage
+	Value internal.TopicMessage
 	Topic string
 }
 type AckMessage struct {
@@ -136,7 +137,7 @@ func (c *ConsumerRuntime) PullLoop() {
 			}
 
 			res := <-respChan
-			var response data.PullResponse
+			var response internal.PullResponse
 			err := json.Unmarshal(res.Payload, &response)
 			if err != nil {
 				log.Printf("[PullLoop] cant unmarshall response: error %s", err)
@@ -165,7 +166,7 @@ func (c *ConsumerRuntime) PullLoop() {
 }
 
 func (c *ConsumerRuntime) sendPullRequest(topic string) chan protocol.Frame {
-	request := data.PullRequest{
+	request := internal.PullRequest{
 		Topic:      topic,
 		Timeout:    c.Timeout,
 		MaxMessage: c.MaxMessage,
@@ -280,7 +281,7 @@ func (c *ConsumerRuntime) ackLoop(nbWorker int) {
 }
 
 func (c *ConsumerRuntime) ack(topic string, id uuid.UUID) {
-	request := data.AckRequest{
+	request := internal.AckRequest{
 		Topic: topic,
 		ID:    id,
 	}
